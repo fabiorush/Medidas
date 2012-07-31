@@ -34,11 +34,17 @@ class Medidas
 	end
 	
 	def gpio
-		[[0,1]] + @pontos.each_cons(2).collect { |x,y| interval = y.gpio - x.gpio; interval>1 ? [y.tempo,1] : interval<-1 ? [y.tempo,0] : nil }.select { |x| x }
+		[[0,1]] + @pontos.each_cons(2).collect { 
+			|x,y| interval = y.gpio - x.gpio
+			interval>1 ? [y.tempo,1] : interval<-1 ? [y.tempo,0] : nil 
+		}.select { |x| x }
 	end
 	
 	def pwm
-		[[0,1]] + @pontos.each_cons(2).collect { |x,y| interval = y.pwm - x.pwm; interval>1 ? [y.tempo,1] : interval<-1 ? [y.tempo,0] : nil }.select { |x| x }
+		[[0,1]] + @pontos.each_cons(2).collect { 
+			|x,y| interval = y.pwm - x.pwm
+			interval>1 ? [y.tempo,1] : interval<-1 ? [y.tempo,0] : nil 
+		}.select { |x| x }
 	end
 
 	def timer_is
@@ -99,16 +105,26 @@ class Medidas
 				plot.title  "Onda"
 				plot.ylabel "Nivel logico"
 				plot.xlabel "Tempo"
-				x = gpio.collect { |x| x[0] }.each_cons(2).collect { |x| x }.flatten
-				y = [2] + gpio.collect { |x| x[1]+1 }.each_cons(2).collect { |x| x }.flatten[0..-2]
+				x = gpio.collect { |x| x[0] }.each_cons(2).collect {
+					|x| x
+				}.flatten
+				y = [2] + gpio.collect { 
+					|x| x[1]+1
+				}.each_cons(2).collect { |x| x }.flatten[0..-2]
 
 				plot.data << Gnuplot::DataSet.new([x,y]) do |ds|
 					ds.with = "linespoints"
 					ds.notitle
 				end
 
-				x = pwm.collect { |x| x[0] }.each_cons(2).collect { |x| x }.flatten
-				y = [0] + pwm.collect { |x| x[1]-1 }.each_cons(2).collect { |x| x }.flatten[0..-2]
+				x = pwm.collect { |x| x[0] }.each_cons(2).collect {
+					|x| x
+				}.flatten
+				y = [0] + pwm.collect { 
+					|x| x[1]-1 
+				}.each_cons(2).collect {
+					|x| x 
+				}.flatten[0..-2]
 
 				plot.data << Gnuplot::DataSet.new([x,y]) do |ds|
 					ds.with = "linespoints"
@@ -125,9 +141,13 @@ class Media
 
 	def initialize(dirname)
 		@dirname = dirname
-		@gpio_i,@timer_is,@miss = Dir.entries(dirname).select { |dir| dir =~ /.+\.csv/ }.collect { 
-			|file| Medidas.new(dirname + file).timer_is }.inject {
-			|total,med| [total[0] + med[0], total[1] + med[1], total[2] + med[2]] }
+		@gpio_i,@timer_is,@miss = Dir.entries(dirname).select {
+			|dir| dir =~ /.+\.csv/ 
+		}.collect { 
+			|file| Medidas.new(dirname + file).timer_is 
+		}.inject {
+			|total,med| [total[0]+med[0], total[1]+med[1], total[2]+med[2]]
+		}
 	end
 	
 	def gpio_i_max
